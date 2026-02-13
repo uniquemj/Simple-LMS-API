@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterDto } from 'src/auth/dto/registerUser.dto';
 import { User } from './schemas/user.schema';
@@ -24,6 +24,18 @@ export class UserService {
                 throw new ConflictException(`${key} is already taken`);
             }
             throw err;
+        }
+    }
+
+    async getUserByEmail (email: string){
+        try{
+            const user = await this.userModel.findOne({email: email}).lean()
+            if(!user){
+                throw new NotFoundException('User with email not found!')
+            }
+            return user
+        } catch(err){
+            throw err
         }
     }
 }

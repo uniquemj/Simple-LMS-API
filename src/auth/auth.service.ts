@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { RegisterDto } from './dto/registerUser.dto';
+import { LoginDto, RegisterDto } from './dto/registerUser.dto';
 import bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
 @Injectable()
@@ -20,5 +20,19 @@ export class AuthService {
         const payload = {sub: user._id, email: user.email, role: user.role};
         const token = await this.jwtService.signAsync(payload);
         return {access_token: token};
+    }
+
+    async loginUser(loginUser: LoginDto){
+        const {email, password} = loginUser
+        const user = await this.userService.getUserByEmail(email)
+        
+        const matchPassword = await bcrypt.compare(password, user.password)
+        if(!matchPassword){
+            throw new BadRequestException("Password Incorrect")
+        }
+
+        const payload = {sub: user._id, email: user.email, role: user.role};
+        const token = await this.jwtService.signAsync(payload);
+        return {access_token: token}
     }
 }
