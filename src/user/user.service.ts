@@ -27,6 +27,10 @@ export class UserService {
         }
     }
 
+    async getUserById(id: string){
+        return await this.userModel.findOne({_id: id}).lean()
+    }
+
     async getUserByEmail (email: string){
         try{
             const user = await this.userModel.findOne({email: email}).lean()
